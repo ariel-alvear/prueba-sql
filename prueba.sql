@@ -4,11 +4,11 @@
 CREATE DATABASE prueba;
 
 CREATE TABLE clients_table(
-    id_client SERIAL,
+    id SERIAL,
     name VARCHAR(50),
     rut VARCHAR(10), --rut sin puntos, con guion y dv
     address VARCHAR(255),
-    PRIMARY KEY (id_client)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE categories_table(
@@ -29,11 +29,11 @@ CREATE TABLE products_table(
 );
 
 CREATE TABLE bills_table(
-    id_bill SERIAL,
+    id SERIAL,
     bill_date DATE,
     client_id INT,
-    PRIMARY KEY (id_bill),
-    FOREIGN KEY (client_id) REFERENCES clients_table(id_client)
+    PRIMARY KEY (id),
+    FOREIGN KEY (client_id) REFERENCES clients_table(id)
 );
 
 CREATE TABLE bill_product_relations(
@@ -41,7 +41,7 @@ CREATE TABLE bill_product_relations(
     bill_id INT,
     product_id INT,
     PRIMARY KEY (id),
-    FOREIGN KEY (bill_id) REFERENCES bills_table(id_bill),
+    FOREIGN KEY (bill_id) REFERENCES bills_table(id),
     FOREIGN KEY (product_id) REFERENCES products_table(id)
 );
 
@@ -146,19 +146,25 @@ SELECT * FROM bill_product_relations;
 --factura debe tener subtotal, iva, precio total, valor total por producto
 --quién realizó la compra más cara?
 
-SELECT id_client
+SELECT clients_table.id as cliente, bills_table.id as factura
 FROM clients_table
 INNER JOIN bills_table
-ON clients_table.id_client=bills_table.client_id
-WHERE id_bill=(
-    SELECT bill_id, SUM(unit_value)
-    FROM bill_product_relations
-    INNER JOIN products_table
-    ON bill_product_relations.product_id=products_table.id
-    GROUP BY bill_id
-    ORDER BY sum DESC
+ON clients_table.id=bills_table.client_id
+WHERE bills_table.id=(
+    SELECT x.bill_id
+    FROM (
+        SELECT bill_id, SUM(unit_value)
+        FROM bill_product_relations
+        INNER JOIN products_table
+        ON bill_product_relations.product_id=products_table.id
+        GROUP BY bill_id
+        ORDER BY sum DESC
+        LIMIT 1 
+    ) as x
+    INNER JOIN bill_product_relations on x.bill_id=bill_product_relations.bill_id
     LIMIT 1
 );
+
 --quién pago sobre 100 de monto?
 
 --cuántos clientes compraron el producto 6?
