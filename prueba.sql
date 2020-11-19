@@ -166,6 +166,21 @@ WHERE bills_table.id=(
 );
 
 --quién pago sobre 100 de monto?
+SELECT DISTINCT(client_id)
+FROM (
+    SELECT x.bill_id
+    FROM (
+        SELECT bill_id, SUM(unit_value) as subtotal
+        FROM bill_product_relations
+        INNER JOIN products_table
+        ON bill_product_relations.product_id=products_table.id
+        GROUP BY bill_id
+    ) as x
+    INNER JOIN bill_product_relations on x.bill_id=bill_product_relations.bill_id
+    WHERE subtotal>100
+) as y
+INNER JOIN bills_table on client_id=bills_table.client_id;
+
 
 --cuántos clientes compraron el producto 6?
 
