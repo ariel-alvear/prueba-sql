@@ -1,13 +1,14 @@
+--PARTE 1
 -- primero creamos modelo físico
 
 CREATE DATABASE prueba;
 
 CREATE TABLE clients_table(
-    id SERIAL,
+    id_client SERIAL,
     name VARCHAR(50),
     rut VARCHAR(10), --rut sin puntos, con guion y dv
     address VARCHAR(255),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id_client)
 );
 
 CREATE TABLE categories_table(
@@ -28,11 +29,11 @@ CREATE TABLE products_table(
 );
 
 CREATE TABLE bills_table(
-    id SERIAL,
+    id_bill SERIAL,
     bill_date DATE,
     client_id INT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (client_id) REFERENCES clients_table(id)
+    PRIMARY KEY (id_bill),
+    FOREIGN KEY (client_id) REFERENCES clients_table(id_client)
 );
 
 CREATE TABLE bill_product_relations(
@@ -40,10 +41,11 @@ CREATE TABLE bill_product_relations(
     bill_id INT,
     product_id INT,
     PRIMARY KEY (id),
-    FOREIGN KEY (bill_id) REFERENCES bills_table(id),
+    FOREIGN KEY (bill_id) REFERENCES bills_table(id_bill),
     FOREIGN KEY (product_id) REFERENCES products_table(id)
 );
 
+--PARTE 2
 -- insertaremos datos
 -- 5 clientes
 INSERT INTO clients_table (name, rut, address) VALUES ('ariel', '17000000-1', 'avenida apoquindo 5000, departamento 115, las condes'); 
@@ -139,4 +141,25 @@ SELECT * FROM products_table;
 SELECT * FROM bills_table;
 SELECT * FROM bill_product_relations;
 
+
+--PARTE 3, consultas
+--factura debe tener subtotal, iva, precio total, valor total por producto
+--quién realizó la compra más cara?
+
+SELECT id_client
+FROM clients_table
+INNER JOIN bills_table
+ON clients_table.id_client=bills_table.client_id
+WHERE id_bill=(
+    SELECT bill_id, SUM(unit_value)
+    FROM bill_product_relations
+    INNER JOIN products_table
+    ON bill_product_relations.product_id=products_table.id
+    GROUP BY bill_id
+    ORDER BY sum DESC
+    LIMIT 1
+);
+--quién pago sobre 100 de monto?
+
+--cuántos clientes compraron el producto 6?
 
