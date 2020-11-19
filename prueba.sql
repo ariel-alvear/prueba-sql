@@ -133,7 +133,7 @@ INSERT INTO bills_table (bill_date, client_id) VALUES ('2020-09-28', 4);
 INSERT INTO bill_product_relations (bill_id, product_id) VALUES (10, 5);
 
 --revisamos avance
-SELECT * FROM clients_table
+SELECT * FROM clients_table;
 SELECT * FROM categories_table;
 SELECT * FROM products_table;
 SELECT * FROM bills_table;
