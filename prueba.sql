@@ -145,7 +145,6 @@ SELECT * FROM bill_product_relations;
 --PARTE 3, consultas
 --factura debe tener subtotal, iva, precio total, valor total por producto
 --quién realizó la compra más cara?
-
 SELECT bills_table.client_id as cliente, 
 bills_table.id as factura,
 x.subtotal as subtotal
@@ -164,7 +163,6 @@ ORDER BY subtotal DESC
 LIMIT 1;
 
 --quién pago sobre 100 de monto?
-
 SELECT bills_table.client_id as cliente, 
 bills_table.id as factura,
 x.subtotal as subtotal
@@ -179,7 +177,7 @@ FROM
     GROUP BY Factura
     ) as x
 INNER JOIN bills_table ON x.factura=bills_table.id
-ORDER BY subtotal DESC;
+WHERE x.subtotal>100; --todos hicieron compras mayores a 100, cambiando este valor se puede filtrar por el valor que se quiera.
 
 --cuántos clientes compraron el producto 6?
 SELECT bills_table.client_id as cliente,
