@@ -146,28 +146,46 @@ SELECT * FROM bill_product_relations;
 --factura debe tener subtotal, iva, precio total, valor total por producto
 --quién realizó la compra más cara?
 
-SELECT clients_table.id as cliente, bills_table.id as factura
-FROM clients_table
-INNER JOIN bills_table
-ON clients_table.id=bills_table.client_id
-WHERE bills_table.id=(
-    SELECT x.bill_id
-    FROM (
-        SELECT bill_id, SUM(unit_value)
-        FROM bill_product_relations
-        INNER JOIN products_table
-        ON bill_product_relations.product_id=products_table.id
-        GROUP BY bill_id
-        ORDER BY sum DESC
-        LIMIT 1 
+SELECT bills_table.client_id as cliente, 
+bills_table.id as factura,
+x.subtotal as subtotal
+FROM 
+    (SELECT bill_product_relations.bill_id as Factura,
+    SUM(products_table.unit_value) as subtotal
+    FROM bills_table
+    INNER JOIN bill_product_relations
+    ON bills_table.id=bill_product_relations.bill_id
+    INNER JOIN products_table
+    ON bill_product_relations.product_id=products_table.id
+    GROUP BY Factura
     ) as x
-    INNER JOIN bill_product_relations on x.bill_id=bill_product_relations.bill_id
-    LIMIT 1
-);
+INNER JOIN bills_table ON x.factura=bills_table.id
+ORDER BY subtotal DESC
+LIMIT 1;
 
 --quién pago sobre 100 de monto?
 
-
+SELECT bills_table.client_id as cliente, 
+bills_table.id as factura,
+x.subtotal as subtotal
+FROM 
+    (SELECT bill_product_relations.bill_id as Factura,
+    SUM(products_table.unit_value) as subtotal
+    FROM bills_table
+    INNER JOIN bill_product_relations
+    ON bills_table.id=bill_product_relations.bill_id
+    INNER JOIN products_table
+    ON bill_product_relations.product_id=products_table.id
+    GROUP BY Factura
+    ) as x
+INNER JOIN bills_table ON x.factura=bills_table.id
+ORDER BY subtotal DESC;
 
 --cuántos clientes compraron el producto 6?
-
+SELECT bills_table.client_id as cliente,
+bill_product_relations.bill_id as factura,
+bill_product_relations.product_id as producto
+FROM bills_table
+INNER JOIN bill_product_relations
+ON bills_table.id=bill_product_relations.id
+WHERE bill_product_relations.product_id=6;
